@@ -1,0 +1,30 @@
+import { Controller, Post, Body, Get, Req } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login-dto';
+import { Public } from './decorators/public.decorator';
+import { CreateUsuarioDto } from 'src/usuario/dto/create-usuario.dto';
+import { Request } from 'express';
+
+@Controller('auth')
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
+
+  @Post('login')
+  @Public()
+  async login(@Body() loginDto: LoginDto) {
+    const userToken = await this.authService.validateUser(loginDto);
+    return { token: userToken };
+  }
+
+  @Post('register')
+  @Public()
+  async register(@Body() registerDto: CreateUsuarioDto) {
+    const userToken = await this.authService.registerUser(registerDto);
+    return { token: userToken };
+  }
+
+  @Get('profile')
+  getProfile(@Req() req: Request) {
+    return this.authService.getProfile(req);
+  }
+}

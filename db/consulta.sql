@@ -1,0 +1,6 @@
+INSERT INTO estado (ambito, nombre) VALUES
+  ('PRODUCTO', 'DISPONIBLE'),
+  ('PRODUCTO', 'NO_DISPONIBLE'),
+  ('PRODUCTO', 'ELIMINADO'),
+  ('MARCA', 'DISPONIBLE'),
+  ('MARCA', 'ELIMINADA');

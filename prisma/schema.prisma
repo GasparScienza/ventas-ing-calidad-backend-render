@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id    Int    @id @default(autoincrement())
+  correo String @unique
+  dirEnvio String
+  nombre  String
+  telefono String @unique
+  fechaHora DateTime @default(now())
+  contraseña String
+  rol Rol @default(CLIENTE)
+
+  historialSesions HistorialSesion[]
+  ventas          Venta[]
+}
+
+enum Rol {
+  ADMIN
+  CLIENTE
+  AUDITOR
+}
+
+model HistorialSesion {
+  id        Int      @id @default(autoincrement())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId Int
+  fechaHora DateTime @default(now())
+  accion    String
+}
+
+model Producto {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  descripcion String
+  precio      Float
+  stock       Int
+  imagenUrl   String?
+
+  linea       Linea @relation(fields: [lineaId], references: [id])
+  lineaId     Int
+
+  estado      Estado @relation(fields: [estadoId], references: [id])
+  estadoId    Int
+
+  proveedor  Proveedor @relation(fields: [proveedorId], references: [id])
+  proveedorId Int
+
+  detallesVenta   DetalleVenta[]
+}
+
+model Proveedor {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  contacto  String
+  telefono  String
+  direccion String
+  fechaHora DateTime @default(now())
+
+  productos Producto[]
+}
+
+
+model Linea{
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  descripcion String
+  
+  marca     Marca @relation(fields: [marcaId], references: [id])
+  marcaId   Int
+
+  productos Producto[]
+}
+
+model Marca{
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  descripcion String
+
+  estado    Estado @relation(fields: [estadoId], references: [id])
+  estadoId  Int
+
+  lineas Linea[]
+}
+
+model Estado{
+  id        Int      @id @default(autoincrement())
+  nombre    Nombre
+  ambito   Ambito
+  
+  marcas Marca[]
+  estados Producto[]
+}
+
+enum Nombre {
+  DISPONIBLE
+  NO_DISPONIBLE
+  ELIMINADO
+  ELIMINADA
+}
+enum Ambito {
+  PRODUCTO
+  MARCA
+}
+
+model Venta {
+  id        Int      @id @default(autoincrement())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId Int
+  fechaHora DateTime @default(now())
+  total     Float
+
+  detalles  DetalleVenta[]
+}
+
+model DetalleVenta {
+  id        Int      @id @default(autoincrement())
+  cantidad  Int
+  subtotal  Float
+
+  venta     Venta    @relation(fields: [ventaId], references: [id])
+  ventaId   Int
+
+  producto  Producto @relation(fields: [productoId], references: [id])
+  productoId Int
+}
